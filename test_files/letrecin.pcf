@@ -1,0 +1,4 @@
+let rec add x y
+ = if iszero(x) then y else add(pred(x))(succ(y));
+
+add(succ(2))(succ(3))

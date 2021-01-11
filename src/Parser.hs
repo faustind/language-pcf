@@ -122,5 +122,50 @@ table =
 expr :: Parser Expr
 expr = Ex.buildExpressionParser table term
 
+letdecl :: Parser Binding
+letdecl = do
+  reserved "let"
+  name <- identifier
+  args <- many identifier
+  reservedOp "="
+  body <- expr
+  return $
+    if null args
+      then (name, body)
+      else (name, foldr Lam body args)
+
+letrecdecl :: Parser Binding
+letrecdecl = do
+  reserved "let"
+  reserved "rec"
+  name <- identifier
+  args <- many identifier
+  reservedOp "="
+  body <- expr
+  return $
+    if null args
+      then (name, Mu name body)
+      else (name, Mu name (foldr Lam body args))
+
+val :: Parser Binding
+val = do
+  ex <- expr
+  return ("it", ex)
+
+decl :: Parser Binding
+decl = try letrecdecl <|> letdecl <|> val
+
+top :: Parser Binding
+top = do
+  x <- decl
+  optional semi
+  return x
+
+modl :: Parser [Binding]
+modl = many top
+
 parseExpr :: L.Text -> Either ParseError Expr
 parseExpr input = parse (contents expr) "<stdin>" input
+
+parseModule :: FilePath -> L.Text -> Either ParseError [Binding]
+parseModule fname input = parse (contents modl) fname input

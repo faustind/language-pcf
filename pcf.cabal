@@ -4,7 +4,7 @@ cabal-version: 1.12
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: fa8c398bed106c4720c187a949bb56e5fee42f09f2fe2a259725539104d89122
+-- hash: cb440d61059cee692f4f398cacc0b9bd9aaf48db29a3c2b1f4b2d69f42ebcb57
 
 name:           pcf
 version:        0.1.0.0
@@ -27,6 +27,7 @@ source-repository head
 
 library
   exposed-modules:
+      Cli
       Eval
       Lexer
       Parser
@@ -37,11 +38,15 @@ library
       src
   build-depends:
       base >=4.7 && <5
+    , bytestring
     , containers
     , haskeline
     , hspec
     , mtl
     , parsec
+    , repline
+    , tasty
+    , tasty-golden
     , text
   default-language: Haskell2010
 
@@ -54,30 +59,60 @@ executable pcf
   ghc-options: -threaded -rtsopts -with-rtsopts=-N
   build-depends:
       base >=4.7 && <5
+    , bytestring
     , containers
     , haskeline
     , hspec
     , mtl
     , parsec
     , pcf
+    , repline
+    , tasty
+    , tasty-golden
     , text
   default-language: Haskell2010
 
-test-suite pcf-test
+test-suite test
   type: exitcode-stdio-1.0
   main-is: Main.hs
   other-modules:
       Paths_pcf
   hs-source-dirs:
-      test
+      test/Spec
   ghc-options: -threaded -rtsopts -with-rtsopts=-N
   build-depends:
       base >=4.7 && <5
+    , bytestring
     , containers
     , haskeline
     , hspec
     , mtl
     , parsec
     , pcf
+    , repline
+    , tasty
+    , tasty-golden
+    , text
+  default-language: Haskell2010
+
+test-suite test-golden
+  type: exitcode-stdio-1.0
+  main-is: Main.hs
+  other-modules:
+      Paths_pcf
+  hs-source-dirs:
+      test/Golden
+  build-depends:
+      base >=4.7 && <5
+    , bytestring
+    , containers
+    , haskeline
+    , hspec
+    , mtl
+    , parsec
+    , pcf
+    , repline
+    , tasty
+    , tasty-golden
     , text
   default-language: Haskell2010

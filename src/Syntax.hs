@@ -15,7 +15,9 @@ data Expr
 
 type Var = String
 
-type Id = String
+type Id = Var
+
+type Binder = Var
 
 type Cond = Expr -- Evaluates to a Bool
 
@@ -29,3 +31,5 @@ data BinOp
   = Add
   | Sub
   deriving (Show, Eq)
+
+type Binding = (Binder, Expr)
