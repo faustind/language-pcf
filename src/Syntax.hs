@@ -4,6 +4,7 @@ data Expr
   = Var Var
   | Nat Integer
   | Bool Bool
+  | List [Expr]
   | App Expr Expr
   | Lam Var Expr
   | Mu Id Expr

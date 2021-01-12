@@ -4,26 +4,27 @@ cabal-version: 1.12
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: cb440d61059cee692f4f398cacc0b9bd9aaf48db29a3c2b1f4b2d69f42ebcb57
+-- hash: aa53ba0d3881d4de784a2d060cfe174e7ea83b8539ddcdef4f5557ebd8e29c6f
 
 name:           pcf
 version:        0.1.0.0
-description:    Please see the README on GitHub at <https://github.com/githubuser/pcf#readme>
-homepage:       https://github.com/githubuser/pcf#readme
-bug-reports:    https://github.com/githubuser/pcf/issues
-author:         Author name here
-maintainer:     example@example.com
-copyright:      2021 Author name here
+description:    Please see the README on GitHub at <https://github.com/faustind/language-pcf#readme>
+homepage:       https://github.com/faustind/language-pcf#readme
+bug-reports:    https://github.com/faustind/language-pcf/issues
+author:         Faustin Date
+maintainer:     datefaustin@gmail.com
+copyright:      2021 Faustin Date
 license:        BSD3
 license-file:   LICENSE
 build-type:     Simple
 extra-source-files:
     README.md
     ChangeLog.md
+    lib/stdlib.pcf
 
 source-repository head
   type: git
-  location: https://github.com/githubuser/pcf
+  location: https://github.com/faustind/language-pcf
 
 library
   exposed-modules:

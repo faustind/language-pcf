@@ -27,7 +27,36 @@ tests :: TestTree
 tests =
   testGroup
     "Golden Tests"
-    [tastyGoldenRun "add" "test_files/add.pcf" "test_files/ans/add.txt"]
+    [ tastyGoldenRun "add" "test_files/add.pcf" "test_files/ans/add.txt"
+    , tastyGoldenRun
+        "list_cons"
+        "test_files/list_cons.pcf"
+        "test_files/ans/list_cons.txt"
+    , tastyGoldenRun
+        "list_head"
+        "test_files/list_head.pcf"
+        "test_files/ans/list_head.txt"
+    , tastyGoldenRun
+        "list_indx"
+        "test_files/list_indx.pcf"
+        "test_files/ans/list_indx.txt"
+    , tastyGoldenRun
+        "list_null_1"
+        "test_files/list_null_1.pcf"
+        "test_files/ans/list_null_1.pcf"
+    , tastyGoldenRun
+        "list_null_2"
+        "test_files/list_null_2.pcf"
+        "test_files/ans/list_null_2.pcf"
+    , tastyGoldenRun
+        "list_null_3"
+        "test_files/list_null_3.pcf"
+        "test_files/ans/list_null_3.pcf"
+    , tastyGoldenRun
+        "list_tail"
+        "test_files/list_tail.pcf"
+        "test_files/ans/list_tail.pcf"
+    ]
 
 tastyGoldenRun :: TestName -> T.Text -> FilePath -> TestTree
 tastyGoldenRun testName testFile correct =

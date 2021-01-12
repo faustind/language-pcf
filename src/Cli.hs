@@ -3,12 +3,10 @@
 
 module Cli where
 
-import Control.Monad (void)
 import Control.Monad.State.Strict
 import Data.List (foldl', isPrefixOf)
 import Data.Monoid
 import System.Console.Repline
-import System.Environment
 import System.Exit
 
 import qualified Data.Map as Map
@@ -45,6 +43,8 @@ exec :: Bool -> L.Text -> Repl ()
 exec update source = do
   st <- get
   mod <- hoistErr $ parseModule "<stdin>" source
+  -- Uncomment to see the parsed module
+  -- liftIO $ print mod
   let st' = st {tmctx = foldl' evalDef (tmctx st) mod}
   when update (put st')
   case lookup "it" mod of
@@ -85,12 +85,3 @@ shell :: Repl () -> IO ()
 shell pre =
   flip evalStateT initState $
   evalRepl (pure "PCF> ") cmd options (Just ':') completer pre
-
-cli :: IO ()
-cli = do
-  args <- getArgs
-  case args of
-    [] -> shell (void (load ["lib/stdlib.pcf"]))
-    [fname] -> shell (load ["lib/stdlib.pcf"] >> load [fname])
-    ["run", fname] -> shell (load ["lib/stdlib.pcf"] >> load [fname] >> quit ())
-    _ -> putStrLn "invalid arguments"

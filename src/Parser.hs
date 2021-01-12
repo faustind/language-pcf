@@ -28,6 +28,12 @@ bool =
   (reserved "true" >> return (Bool True)) <|>
   (reserved "false" >> return (Bool False))
 
+list :: Parser Expr
+list =
+  do l <- brackets (expr `sepBy` comma)
+     return $ List l
+     <|> (reserved "nil" >> return (List []))
+
 primOp :: Parser Expr
 primOp =
   (reserved "succ" >> do
@@ -98,7 +104,8 @@ letrecin = do
 
 aexp :: Parser Expr
 aexp =
-  parens expr <|> bool <|> number <|> ifthen <|> mu <|> lambda <|> primOp <|>
+  parens expr <|> list <|> bool <|> number <|> ifthen <|> mu <|> lambda <|>
+  primOp <|>
   try letrecin <|>
   letin <|>
   variable
@@ -107,7 +114,7 @@ aexp =
 -- then try parsing many "ei"s (i >= 1)
 --     if no "ei" return "e0"
 --     otherwise return
---          App e0 (App e1 (App e2 (...)))
+--          App (... App (App e0 e1) e3 ...)
 term :: Parser Expr
 term =
   aexp >>= \x -> (many1 aexp >>= \xs -> return (foldl App x xs)) <|> return x

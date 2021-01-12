@@ -24,6 +24,7 @@ eval env expr =
     Undefined -> error "The unexpected has happened!"
     (Nat i) -> return $ Nat i
     (Bool t) -> return $ Bool t
+    (List l) -> return $ List l
     (Var v) -> return $ fromMaybe (Var v) (Map.lookup v env)
     (If cond tr fl) -> do
       let unwrap cond = do
@@ -37,14 +38,38 @@ eval env expr =
         else eval env fl
     (Lam x body) -> return $ Lam x body
     (Mu f body) -> return $ subst f (Mu f body) body
-    (App fun arg) -> do
-      let unwrap fun = do
-            fun' <- eval env fun
-            case fun' of
-              Lam x body -> pure (x, body)
-              _ -> error "eval: type error: Abstraction"
-      (bndr, body) <- unwrap fun
-      eval env (subst bndr arg body)
+    (App fun arg) ->
+      let unwrap list = do
+            l <- eval env list
+            case l of
+              List es -> pure es
+              _ -> error "eval: type error: List"
+       in case fun of
+            (App (Var "cons") e) -> do
+              tail <- unwrap arg
+              head <- eval env e
+              return $ List ((:) head tail)
+            (Var fname) ->
+              if fname `elem` words "head tail null"
+                then do
+                  contents <- unwrap arg
+                  case fname of
+                    "head" -> eval env (head contents)
+                    "tail" -> return $ List (tail contents)
+                    "null" -> return $ Bool (null contents)
+                else do
+                  f <- eval env (Var fname)
+                  case f of
+                    (Var _) -> error ("unbound identifier: " ++ fname)
+                    _ -> eval env $ App f arg
+            _ ->
+              let unwrap' fun = do
+                    fun' <- eval env fun
+                    case fun' of
+                      Lam x body -> pure (x, body)
+                      _ -> error "eval: type error: Abstraction"
+               in do (bndr, body) <- unwrap' fun
+                     eval env (subst bndr arg body)
     (PrimOp op e) -> do
       let unwrap nat = do
             n <- eval env nat
@@ -82,6 +107,7 @@ operator Sub a b =
 subst :: Var -> Expr -> Expr -> Expr
 subst v e (Nat i) = Nat i
 subst v e (Bool t) = Bool t
+subst v e (List l) = List $ map (subst v e) l
 subst v e (PrimOp op arg) = PrimOp op (subst v e arg)
 subst v e (Op binop e1 e2) = Op binop (subst v e e1) (subst v e e2)
 subst v e (If cond tr fl) = If (subst v e cond) (subst v e tr) (subst v e fl)

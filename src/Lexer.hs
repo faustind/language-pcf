@@ -66,6 +66,12 @@ parens = Tok.parens lexer
 semi :: Parser String
 semi = Tok.semi lexer
 
+comma :: Parser String
+comma = Tok.comma lexer
+
+brackets :: Parser a -> Parser a
+brackets = Tok.brackets lexer
+
 contents :: Parser a -> Parser a
 contents p = do
   Tok.whiteSpace lexer

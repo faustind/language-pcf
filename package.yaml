@@ -1,23 +1,24 @@
 name:                pcf
 version:             0.1.0.0
-github:              "githubuser/pcf"
+github:              "faustind/language-pcf"
 license:             BSD3
-author:              "Author name here"
-maintainer:          "example@example.com"
-copyright:           "2021 Author name here"
+author:              "Faustin Date"
+maintainer:          "datefaustin@gmail.com"
+copyright:           "2021 Faustin Date"
 
 extra-source-files:
 - README.md
 - ChangeLog.md
+- lib/stdlib.pcf
 
 # Metadata used when publishing your package
-# synopsis:            Short description of your package
-# category:            Web
+synopsis:            An untyped implementation of the programming language PCF
+category:            Programming Language
 
 # To avoid duplicated efforts in documentation and dealing with the
 # complications of embedding Haddock markup inside cabal files, it is
 # common to point users to the README.md file.
-description:         Please see the README on GitHub at <https://github.com/githubuser/pcf#readme>
+description:         Please see the README on GitHub at <https://github.com/faustind/language-pcf#readme>
 
 dependencies:
 - base >= 4.7 && < 5
