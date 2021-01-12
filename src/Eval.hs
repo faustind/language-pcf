@@ -12,54 +12,57 @@ import qualified Data.Map as Map
 
 import Syntax
 
--- type ValCtx = Map.Map String PCFValue
 type ValCtx = Map.Map String Expr
 
-emptyValCtx = Map.empty
-
-data PCFValue
-  = VNat Integer
-  | VBool Bool
-  | VLam Var Expr -- | VMu Var Expr
-
-type EList = Expr
-
 type Eval a = Identity a
+
+emptyValCtx = Map.empty
 
 eval :: ValCtx -> Expr -> Eval Expr
 eval env expr =
   case expr of
+    Undefined -> error "The unexpected has happened!"
     (Nat i) -> return $ Nat i
     (Bool t) -> return $ Bool t
     (Var v) -> return $ fromMaybe (Var v) (Map.lookup v env)
     (If cond tr fl) -> do
-      cond' <- eval env cond
-      case cond' of
-        Bool true ->
-          if true
-            then eval env tr
-            else eval env fl
+      let unwrap cond = do
+            cond' <- eval env cond
+            case cond' of
+              Bool t -> pure t
+              _ -> error "eval: type error: Bool"
+      true <- unwrap cond
+      if true
+        then eval env tr
+        else eval env fl
     (Lam x body) -> return $ Lam x body
     (Mu f body) -> return $ subst f (Mu f body) body
     (App fun arg) -> do
-      fun' <- eval env fun
-      case fun' of
-        Lam x body -> eval env (subst x arg body)
+      let unwrap fun = do
+            fun' <- eval env fun
+            case fun' of
+              Lam x body -> pure (x, body)
+              _ -> error "eval: type error: Abstraction"
+      (bndr, body) <- unwrap fun
+      eval env (subst bndr arg body)
     (PrimOp op e) -> do
-      num <- eval env e
-      case num of
-        Nat i ->
-          case op of
-            Succ -> return $ Nat $ i + 1
-            Pred ->
-              return $
-              if i == 0
-                then Nat 0
-                else Nat $ i - 1
-            IsZero -> return $ Bool $ i == 0
+      let unwrap nat = do
+            n <- eval env nat
+            case n of
+              Nat i -> pure i
+              _ -> error "eval: type error: Nat"
+      i <- unwrap e
+      case op of
+        Succ -> return $ Nat $ i + 1
+        Pred ->
+          return $
+          if i == 0
+            then Nat 0
+            else Nat $ i - 1
+        IsZero -> return $ Bool $ i == 0
     (Op binop e1 e2) -> do
-      let unwrap comp = do
-            v <- eval env comp
+      let unwrap nat = do
+            v <- eval env nat
             case v of
               Nat i -> pure i
               _ -> error "eval: type error: Nat"
