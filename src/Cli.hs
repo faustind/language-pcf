@@ -3,6 +3,7 @@
 
 module Cli where
 
+import Control.Monad (void)
 import Control.Monad.State.Strict
 import Data.List (foldl', isPrefixOf)
 import Data.Monoid
@@ -89,7 +90,7 @@ cli :: IO ()
 cli = do
   args <- getArgs
   case args of
-    [] -> shell (return ())
-    [fname] -> shell (load [fname])
-    ["run", fname] -> shell (load [fname] >> quit ())
+    [] -> shell (void (load ["lib/stdlib.pcf"]))
+    [fname] -> shell (load ["lib/stdlib.pcf"] >> load [fname])
+    ["run", fname] -> shell (load ["lib/stdlib.pcf"] >> load [fname] >> quit ())
     _ -> putStrLn "invalid arguments"
