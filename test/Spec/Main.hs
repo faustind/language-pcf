@@ -14,7 +14,7 @@ import Syntax
 main :: IO ()
 main = do
   hspec $
-    describe "src/Parser.hs parses " $ do
+    describe "Test Parsing: " $ do
       it "Var" $ parseExpr "x" `shouldBe` (Right $ Var "x")
       it "Nat" $ parseExpr "0" `shouldBe` (Right $ Nat 0)
       it "zero" $ parseExpr "zero" `shouldBe` (Right $ Nat 0)
