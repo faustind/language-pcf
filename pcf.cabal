@@ -4,11 +4,13 @@ cabal-version: 1.12
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: aa53ba0d3881d4de784a2d060cfe174e7ea83b8539ddcdef4f5557ebd8e29c6f
+-- hash: 99743bfd55bac24eedd296be72e8fd8152c65e7a0c5db019673ed58f5cb92267
 
 name:           pcf
 version:        0.1.0.0
+synopsis:       An untyped implementation of the programming language PCF
 description:    Please see the README on GitHub at <https://github.com/faustind/language-pcf#readme>
+category:       Programming Language
 homepage:       https://github.com/faustind/language-pcf#readme
 bug-reports:    https://github.com/faustind/language-pcf/issues
 author:         Faustin Date

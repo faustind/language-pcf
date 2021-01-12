@@ -1,8 +1,12 @@
-{- List indexing -}
+{- List -}
 let rec indx xs n 
   = if iszero n 
       then head xs 
       else (indx (tail xs) (n-1));
+let rec map f xs
+  = if null xs
+      then []
+      else cons (f (head xs)) (map f (tail xs));
 
 {- Pairs. -}
 

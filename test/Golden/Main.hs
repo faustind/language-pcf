@@ -37,10 +37,6 @@ tests =
         "test_files/list_head.pcf"
         "test_files/ans/list_head.txt"
     , tastyGoldenRun
-        "list_indx"
-        "test_files/list_indx.pcf"
-        "test_files/ans/list_indx.txt"
-    , tastyGoldenRun
         "list_null_1"
         "test_files/list_null_1.pcf"
         "test_files/ans/list_null_1.pcf"
@@ -56,6 +52,15 @@ tests =
         "list_tail"
         "test_files/list_tail.pcf"
         "test_files/ans/list_tail.pcf"
+    , tastyGoldenRun
+        "stdlib_list_indx"
+        "test_files/list_indx.pcf"
+        "test_files/ans/list_indx.txt"
+    , tastyGoldenRun
+        "stdlib_map_nil"
+        "test_files/map_nil.pcf"
+        "test_files/ans/map_nil.txt"
+    , tastyGoldenRun "stdlib_map" "test_files/map.pcf" "test_files/ans/map.txt"
     ]
 
 tastyGoldenRun :: TestName -> T.Text -> FilePath -> TestTree
