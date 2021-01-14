@@ -160,7 +160,7 @@ val = do
   return ("it", ex)
 
 decl :: Parser Binding
-decl = try letrecdecl <|> letdecl <|> val
+decl = try val <|> try letrecdecl <|> letdecl
 
 top :: Parser Binding
 top = do

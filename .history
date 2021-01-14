@@ -1,3 +1,42 @@
+mult 7 (fact 6)
+fact 7
+fact 6
+fact 10
+fact 31
+fact 5
+fact 0
+fact 5
+mult 0 1
+map (\x.x) [1,false]
+[true, 1]
+tail []
+map (\x.x+999) (cons 1 [0, 1, 2, 3])
+tail (cons 1 [999, 0, 888])
+null [false]
+null []
+null nil
+indx [1,2,3] 1
+head [999, 0, 3]
+cons 1 (cons 2 nil)
+Nat 5
+PCF> let rec add x y = if iszero x then y else add (pred x) (succ y) in add 2 3
+add 5 999
+let rec add x y = if iszero x then y else add (pred x) (succ y);
+let rec add x y = if iszero x then y else add (pred x) (succ y) in add 2 3;
+let rec add x y = if iszero x then y else add (pred x) (succ y) in add 2 3
+let rec add x y = if iszero x then y else add (pred x) (succ y) in add 2 3
+let rec add x y = if iszero x then y else add (pred x) (succ y) in add 2 3
+add 3 5
+let rec add x y = (if iszero x then y else (add (pred x) (succ y)));
+let rec add x y = (if iszero x then y else (add (pred x) (succ y))) in add (succ 2) (succ 3);
+let rec add x y = (if iszero x then y else (add (pred x) (succ y))) in add (succ 2) (succ 3)
+let rec add x y = (if iszero x then y else add (pred x) (succ y)) in add (succ 2) (succ 3)
+let rec add x y = if iszero x then y else add (pred x) (succ y) in add (succ 2) (succ 3)
+let rec add x y = 
+xor false true
+xor false false
+xor true true
+xor true false
 map (\x.x+1) []
 map (\x.x+1) [1,2]
 null nil
