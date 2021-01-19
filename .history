@@ -1,3 +1,8 @@
+1 + []
+head []
+tail []
+head []
+tail []
 mult 7 (fact 6)
 fact 7
 fact 6

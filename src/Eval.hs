@@ -1,8 +1,10 @@
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE ScopedTypeVariables #-}
+{-# LANGUAGE GeneralizedNewtypeDeriving #-}
 
 module Eval where
 
+import Control.Monad.Except
 import Control.Monad.Fail (MonadFail)
 import Control.Monad.Identity
 import Control.Monad.Reader
@@ -14,14 +16,18 @@ import Syntax
 
 type ValCtx = Map.Map String Expr
 
-type Eval a = Identity a
+newtype Eval a =
+  Eval
+    { unEval :: ExceptT String Identity a
+    }
+  deriving (Functor, Applicative, Monad, MonadError String)
 
 emptyValCtx = Map.empty
 
 eval :: ValCtx -> Expr -> Eval Expr
 eval env expr =
   case expr of
-    Undefined -> error "The unexpected has happened!"
+    Undefined -> throwError "The unexpected has happened!"
     (Nat i) -> return $ Nat i
     (Bool t) -> return $ Bool t
     (List l) -> return $ List l
@@ -31,7 +37,7 @@ eval env expr =
             cond' <- eval env cond
             case cond' of
               Bool t -> pure t
-              _ -> error "eval: type error: Bool"
+              _ -> throwError "eval: type error: Bool"
       true <- unwrap cond
       if true
         then eval env tr
@@ -43,7 +49,7 @@ eval env expr =
             l <- eval env list
             case l of
               List es -> pure es
-              _ -> error "eval: type error: List"
+              _ -> throwError "eval: type error expected list"
        in case fun of
             (App (Var "cons") e) -> do
               tail <- unwrap arg
@@ -54,20 +60,27 @@ eval env expr =
                 then do
                   contents <- unwrap arg
                   case fname of
-                    "head" -> eval env (head contents)
-                    "tail" -> return $ List (tail contents)
+                    "head" ->
+                      if null contents
+                        then throwError "eval: no head on empty list"
+                        else eval env (head contents)
+                    "tail" ->
+                      if null contents
+                        then throwError "eval: no tail on empty list"
+                        else return $ List (tail contents)
                     "null" -> return $ Bool (null contents)
                 else do
                   f <- eval env (Var fname)
                   case f of
-                    (Var _) -> error ("unbound identifier: " ++ fname)
+                    (Var _) ->
+                      throwError ("eval: unbound identifier: " ++ fname)
                     _ -> eval env $ App f arg
             _ ->
               let unwrap' fun = do
                     fun' <- eval env fun
                     case fun' of
                       Lam x body -> pure (x, body)
-                      _ -> error "eval: type error: Abstraction"
+                      _ -> throwError "eval: type error in application"
                in do (bndr, body) <- unwrap' fun
                      eval env (subst bndr arg body)
     (PrimOp op e) -> do
@@ -75,7 +88,7 @@ eval env expr =
             n <- eval env nat
             case n of
               Nat i -> pure i
-              _ -> error "eval: type error: Nat"
+              _ -> throwError "eval: type error expected Nat"
       i <- unwrap e
       case op of
         Succ -> return $ Nat $ i + 1
@@ -90,7 +103,7 @@ eval env expr =
             v <- eval env nat
             case v of
               Nat i -> pure i
-              _ -> error "eval: type error: Nat"
+              _ -> throwError "eval: type error expected Nat"
       i <- unwrap e1
       j <- unwrap e2
       return $ operator binop i j
@@ -128,5 +141,9 @@ subst v e Undefined = Undefined
 
 runEval :: ValCtx -> Binder -> Expr -> (Expr, ValCtx)
 runEval env binder action =
-  let res = runIdentity $ eval env action
-   in (res, Map.insert binder res env)
+  let res = runIdentity $ runExceptT $ unEval $ eval env action
+   in case res
+        -- In case of error return the envrionment unmodified
+            of
+        Left _ -> (Undefined, env)
+        Right value -> (value, Map.insert binder value env)
