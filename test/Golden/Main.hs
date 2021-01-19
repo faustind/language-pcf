@@ -4,6 +4,7 @@ module Main
   ( main
   ) where
 
+import Control.Monad (foldM)
 import Data.Functor ((<&>))
 import Data.List (foldl')
 import System.Exit
@@ -78,15 +79,15 @@ evalTextTest stdlib testfile = do
   stdlib' <- L.readFile (T.unpack stdlib)
   -- execute stdlib
   stdbindings' <- hoistErr $ parseModule "<stdin>" stdlib'
-  let stdenv = foldl' evalDef emptyValCtx stdbindings'
+  stdenv <- foldM evalDef emptyValCtx stdbindings'
   -- get the code to test
   testfile' <- L.readFile (T.unpack testfile)
   mod <- hoistErr $ parseModule "<stdin>" testfile'
   -- execute the code using the standard library
-  let bindings = foldl' evalDef stdenv mod
+  bindings <- foldM evalDef stdenv mod
   -- return the output
   case lookup "it" mod of
     Nothing -> return Undefined
     Just ex -> do
-      let (val, _) = runEval bindings "it" ex
+      (val, _) <- runEval bindings "it" ex
       return val

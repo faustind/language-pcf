@@ -3,6 +3,7 @@
 
 module Cli where
 
+import Control.Monad (foldM)
 import Control.Monad.State.Strict
 import Data.List (foldl', isPrefixOf)
 import Data.Monoid
@@ -34,10 +35,10 @@ hoistErr (Left err) = do
   liftIO $ print err
   abort
 
-evalDef :: ValCtx -> (Binder, Expr) -> ValCtx
-evalDef env (bndr, ex) = env'
-  where
-    (val, env') = runEval env bndr ex
+evalDef :: ValCtx -> (Binder, Expr) -> IO ValCtx
+evalDef env (bndr, ex) = do
+  (val, env') <- runEval env bndr ex
+  return env'
 
 exec :: Bool -> L.Text -> Repl ()
 exec update source = do
@@ -45,12 +46,16 @@ exec update source = do
   mod <- hoistErr $ parseModule "<stdin>" source
   -- Uncomment to see the parsed module
   -- liftIO $ print mod
-  let st' = st {tmctx = foldl' evalDef (tmctx st) mod}
+  newState <- liftIO $ foldM evalDef (tmctx st) mod
+  -- let st' = st {tmctx = foldl' evalDef (tmctx st) mod}
+  let st' = st {tmctx = newState}
   when update (put st')
-  case lookup "it" mod of
+  case Map.lookup "it" (tmctx st') of
     Nothing -> return ()
-    Just ex -> do
-      let (val, _) = runEval (tmctx st') "it" ex
+    Just val
+    -- There is an evaluated expression with a result
+    -- that must must be printed
+     -> do
       showOutput (show val) st'
 
 showOutput :: String -> IState -> Repl ()

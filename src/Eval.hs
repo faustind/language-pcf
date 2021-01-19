@@ -27,7 +27,8 @@ emptyValCtx = Map.empty
 eval :: Expr -> Eval Expr
 eval expr =
   case expr of
-    Undefined -> throwError "The unexpected has happened!"
+    Undefined -> do
+      throwError "The unexpected has happened!"
     (Nat i) -> return $ Nat i
     (Bool t) -> return $ Bool t
     (List l) -> return $ List l
@@ -39,7 +40,8 @@ eval expr =
             cond' <- eval cond
             case cond' of
               Bool t -> pure t
-              _ -> throwError "eval: type error: Bool"
+              _ -> do
+                throwError "eval: type error in condition Bool"
       true <- unwrap cond
       if true
         then eval tr
@@ -51,7 +53,8 @@ eval expr =
             l <- eval list
             case l of
               List es -> pure es
-              _ -> throwError "eval: type error expected list"
+              _ -> do
+                throwError "eval: type error in condition Bool"
        in case fun of
             (App (Var "cons") e) -> do
               tail <- unwrap arg
@@ -64,25 +67,28 @@ eval expr =
                   case fname of
                     "head" ->
                       if null contents
-                        then throwError "eval: no head on empty list"
+                        then do
+                          throwError "eval: no head on empty list"
                         else eval (head contents)
                     "tail" ->
                       if null contents
-                        then throwError "eval: no tail on empty list"
+                        then do
+                          throwError "eval: no tail on empty list"
                         else return $ List (tail contents)
                     "null" -> return $ Bool (null contents)
                 else do
                   f <- eval (Var fname)
                   case f of
-                    (Var _) ->
-                      throwError ("eval: unbound identifier: " ++ fname)
+                    (Var _) -> do
+                      throwError "eval: unbound identifier"
                     _ -> eval $ App f arg
             _ ->
               let unwrap' fun = do
                     fun' <- eval fun
                     case fun' of
                       Lam x body -> pure (x, body)
-                      _ -> throwError "eval: type error in application"
+                      _ -> do
+                        throwError "eval: type error in application"
                in do (bndr, body) <- unwrap' fun
                      eval (subst bndr arg body)
     (PrimOp op e) -> do
@@ -90,7 +96,8 @@ eval expr =
             n <- eval nat
             case n of
               Nat i -> pure i
-              _ -> throwError "eval: type error expected Nat"
+              _ -> do
+                throwError "eval: type error: expected Nat"
       i <- unwrap e
       case op of
         Succ -> return $ Nat $ i + 1
@@ -105,7 +112,8 @@ eval expr =
             v <- eval nat
             case v of
               Nat i -> pure i
-              _ -> throwError "eval: type error expected Nat"
+              _ -> do
+                throwError "eval: type error: expected Nat"
       i <- unwrap e1
       j <- unwrap e2
       return $ operator binop i j
@@ -141,11 +149,14 @@ subst v e (Var x) =
     else Var x
 subst v e Undefined = Undefined
 
-runEval :: ValCtx -> Binder -> Expr -> (Expr, ValCtx)
+runEval :: ValCtx -> Binder -> Expr -> IO (Expr, ValCtx)
 runEval env binder action =
   let res = runIdentity $ runExceptT $ runReaderT (unEval $ eval action) env
-   in case res
+   in case res of
+        Left err
         -- In case of error return the envrionment unmodified
-            of
-        Left _ -> (Undefined, env)
-        Right value -> (value, Map.insert binder value env)
+        -- after printing the error to stdout
+         -> do
+          print err
+          return (Undefined, env)
+        Right value -> return (value, Map.insert binder value env)
