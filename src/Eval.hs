@@ -18,42 +18,44 @@ type ValCtx = Map.Map String Expr
 
 newtype Eval a =
   Eval
-    { unEval :: ExceptT String Identity a
+    { unEval :: ReaderT ValCtx (ExceptT String Identity) a
     }
-  deriving (Functor, Applicative, Monad, MonadError String)
+  deriving (Functor, Applicative, Monad, MonadError String, MonadReader ValCtx)
 
 emptyValCtx = Map.empty
 
-eval :: ValCtx -> Expr -> Eval Expr
-eval env expr =
+eval :: Expr -> Eval Expr
+eval expr =
   case expr of
     Undefined -> throwError "The unexpected has happened!"
     (Nat i) -> return $ Nat i
     (Bool t) -> return $ Bool t
     (List l) -> return $ List l
-    (Var v) -> return $ fromMaybe (Var v) (Map.lookup v env)
+    (Var v) -> do
+      env <- ask
+      return $ fromMaybe (Var v) (Map.lookup v env)
     (If cond tr fl) -> do
       let unwrap cond = do
-            cond' <- eval env cond
+            cond' <- eval cond
             case cond' of
               Bool t -> pure t
               _ -> throwError "eval: type error: Bool"
       true <- unwrap cond
       if true
-        then eval env tr
-        else eval env fl
+        then eval tr
+        else eval fl
     (Lam x body) -> return $ Lam x body
     (Mu f body) -> return $ subst f (Mu f body) body
     (App fun arg) ->
       let unwrap list = do
-            l <- eval env list
+            l <- eval list
             case l of
               List es -> pure es
               _ -> throwError "eval: type error expected list"
        in case fun of
             (App (Var "cons") e) -> do
               tail <- unwrap arg
-              head <- eval env e
+              head <- eval e
               return $ List ((:) head tail)
             (Var fname) ->
               if fname `elem` words "head tail null"
@@ -63,29 +65,29 @@ eval env expr =
                     "head" ->
                       if null contents
                         then throwError "eval: no head on empty list"
-                        else eval env (head contents)
+                        else eval (head contents)
                     "tail" ->
                       if null contents
                         then throwError "eval: no tail on empty list"
                         else return $ List (tail contents)
                     "null" -> return $ Bool (null contents)
                 else do
-                  f <- eval env (Var fname)
+                  f <- eval (Var fname)
                   case f of
                     (Var _) ->
                       throwError ("eval: unbound identifier: " ++ fname)
-                    _ -> eval env $ App f arg
+                    _ -> eval $ App f arg
             _ ->
               let unwrap' fun = do
-                    fun' <- eval env fun
+                    fun' <- eval fun
                     case fun' of
                       Lam x body -> pure (x, body)
                       _ -> throwError "eval: type error in application"
                in do (bndr, body) <- unwrap' fun
-                     eval env (subst bndr arg body)
+                     eval (subst bndr arg body)
     (PrimOp op e) -> do
       let unwrap nat = do
-            n <- eval env nat
+            n <- eval nat
             case n of
               Nat i -> pure i
               _ -> throwError "eval: type error expected Nat"
@@ -100,7 +102,7 @@ eval env expr =
         IsZero -> return $ Bool $ i == 0
     (Op binop e1 e2) -> do
       let unwrap nat = do
-            v <- eval env nat
+            v <- eval nat
             case v of
               Nat i -> pure i
               _ -> throwError "eval: type error expected Nat"
@@ -141,7 +143,7 @@ subst v e Undefined = Undefined
 
 runEval :: ValCtx -> Binder -> Expr -> (Expr, ValCtx)
 runEval env binder action =
-  let res = runIdentity $ runExceptT $ unEval $ eval env action
+  let res = runIdentity $ runExceptT $ runReaderT (unEval $ eval action) env
    in case res
         -- In case of error return the envrionment unmodified
             of
