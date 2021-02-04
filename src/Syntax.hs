@@ -31,6 +31,8 @@ data PrimOp
 data BinOp
   = Add
   | Sub
+  | Mult
+  | Div
   deriving (Show, Eq)
 
 type Binding = (Binder, Expr)

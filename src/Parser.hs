@@ -124,7 +124,11 @@ infixOp x f = Ex.Infix (reservedOp x >> return f)
 
 table :: Operators Expr
 table =
-  [[infixOp "+" (Op Add) Ex.AssocLeft], [infixOp "-" (Op Sub) Ex.AssocLeft]]
+  [ [infixOp "+" (Op Add) Ex.AssocLeft]
+  , [infixOp "-" (Op Sub) Ex.AssocLeft]
+  , [infixOp "*" (Op Mult) Ex.AssocLeft]
+  , [infixOp "/" (Op Div) Ex.AssocLeft]
+  ]
 
 expr :: Parser Expr
 expr = Ex.buildExpressionParser table term

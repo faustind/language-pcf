@@ -32,7 +32,7 @@ reservedNames =
   ]
 
 reservedOps :: [String]
-reservedOps = ["\\", ".", "=", "+", "-"]
+reservedOps = ["\\", ".", "=", "+", "-", "*", "/"]
 
 lexer :: Tok.GenTokenParser L.Text () Identity
 lexer =

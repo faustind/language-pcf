@@ -126,6 +126,11 @@ operator Sub a b =
    in if res < 0
         then 0
         else res
+operator Mult a b = Nat $ a * b
+operator Div a b =
+  if b == 0
+    then Undefined
+    else Nat $ a `div` b
 
 subst :: Var -> Expr -> Expr -> Expr
 subst v e (Nat i) = Nat i

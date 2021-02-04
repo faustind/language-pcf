@@ -20,16 +20,10 @@ let fst  p   = head p;
 let snd  p   = head (tail p);
 
 {- Arithmetic -}
--- WARNING: extremely inefficient.
-let rec mult x y
-  = if iszero y
-       then 0
-       else (mult x (y-1)) + x;
-
 let rec fact n
   = if iszero n
       then 1
-      else mult n (fact (n-1));
+      else n * (fact (n-1));
 
 {- Logic -}
 
