@@ -7,7 +7,7 @@ import Control.Monad (foldM)
 import Control.Monad.State.Strict
 import Data.List (foldl', isPrefixOf)
 import Data.Monoid
-import System.Console.Repline
+import System.Console.Repline hiding (options)
 import System.Exit
 
 import qualified Data.Map as Map

@@ -3,10 +3,24 @@
 # For more information, please see the documentation at:
 #   https://docs.haskellstack.org/en/stable/lock_files
 
-packages: []
+packages:
+- completed:
+    hackage: haskeline-0.8.0.0@sha256:3dc9a0d2a50ec32cb496f0dc6037504c99527e3f5b0a2525bb41a8cd197104dd,5610
+    pantry-tree:
+      size: 3013
+      sha256: 2b2e3696d08a5cbef34840b44fcbed504d32189efec5a01889ac69b67654de16
+  original:
+    hackage: haskeline-0.8.0.0
+- completed:
+    hackage: repline-0.3.0.0@sha256:505265acd1e8c53de9eb8aebe096e6f734316aa4e7a3434e1a49e914cec78cdd,2101
+    pantry-tree:
+      size: 501
+      sha256: 8f2256094d0bf3b0bd51ac05a15cdb4ffe25d5ea30740ea26a3d5814c4d4e07e
+  original:
+    hackage: repline-0.3.0.0
 snapshots:
 - completed:
-    size: 524996
-    url: https://raw.githubusercontent.com/commercialhaskell/stackage-snapshots/master/lts/14/27.yaml
-    sha256: 7ea31a280c56bf36ff591a7397cc384d0dff622e7f9e4225b47d8980f019a0f0
-  original: lts-14.27
+    size: 590100
+    url: https://raw.githubusercontent.com/commercialhaskell/stackage-snapshots/master/lts/18/28.yaml
+    sha256: 428ec8d5ce932190d3cbe266b9eb3c175cd81e984babf876b64019e2cbe4ea68
+  original: lts-18.28
